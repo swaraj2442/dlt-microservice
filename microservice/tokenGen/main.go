@@ -1,31 +1,24 @@
 package main
 
 import (
+	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-
-	"golang.org/x/crypto/curve25519"
 )
 
 func main() {
-	// Generate a random 32-byte secret key
-	secretKey := make([]byte, 32)
-	_, err := rand.Read(secretKey)
+	// Generate an Ed25519 key pair
+	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
-		fmt.Println("Error generating secret key:", err)
+		fmt.Println("Error generating key pair:", err)
 		return
 	}
 
-	// Derive the public key from the secret key
-	var publicKey [32]byte
-	curve25519.ScalarBaseMult(&publicKey, (*[32]byte)(secretKey))
-
-	
 	// Convert keys to Base64 for easy storage
-	secretKeyBase64 := base64.StdEncoding.EncodeToString(secretKey)
-	publicKeyBase64 := base64.StdEncoding.EncodeToString(publicKey[:])
+	privateKeyBase64 := base64.StdEncoding.EncodeToString(privateKey)
+	publicKeyBase64 := base64.StdEncoding.EncodeToString(publicKey)
 
-	fmt.Println("Secret Key:", secretKeyBase64)
+	fmt.Println("Private Key:", privateKeyBase64)
 	fmt.Println("Public Key:", publicKeyBase64)
 }
