@@ -1,0 +1,28 @@
+provisionDataStore:
+  cassandra: false  # Disable Cassandra
+  elasticsearch: false  # Enable Elasticsearch
+
+agent:
+  enabled: true
+  service:
+    type: ClusterIP
+    ports:
+      - name: "zipkin"
+        port: 9411
+      - name: "jaeger"
+        port: 6831
+
+collector:
+  enabled: true
+  service:
+    type: ClusterIP
+
+query:
+  enabled: true
+  ingress:
+    enabled: true
+    hosts:
+      - jaeger.local
+
+storage:
+  type: memory  # Use Elasticsearch as storage backend

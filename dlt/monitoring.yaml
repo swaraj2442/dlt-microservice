@@ -1,0 +1,78 @@
+# Enable Prometheus and Grafana Ingress with specific configurations
+grafana:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"  # Specify the ingress class as NGINX
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt"  # ClusterIssuer for cert-manager to issue certificates
+      nginx.ingress.kubernetes.io/rewrite-target: "/"  # Ensure the path is correctly rewritten
+      nginx.ingress.kubernetes.io/use-regex: "true"  # Allow regex path routing
+    hosts:
+      - "dns.com"  # The DNS name for Grafana
+    paths:
+      - path: /grafana(/|$)(.*)  # Route Grafana to /grafana
+        pathType: Prefix  # Use Prefix to match the paths
+    tls:
+      - secretName: backend-api-cert  # Use the existing TLS secret
+        hosts:
+          - "dns.com"
+
+# Prometheus Configuration
+prometheus:
+  ingress:
+    enabled: true
+    ingressClassName: "nginx"  # Specify the ingress class as NGINX
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt"  # ClusterIssuer for cert-manager to issue certificates
+      nginx.ingress.kubernetes.io/rewrite-target: "/"  # Ensure the path is correctly rewritten
+      nginx.ingress.kubernetes.io/use-regex: "true"  # Allow regex path routing
+    hosts:
+      - "dns.com"  # The DNS name for Prometheus
+    paths:
+      - path: /prometheus(/|$)(.*)  # Route Prometheus to /prometheus
+        pathType: Prefix  # Use Prefix to match the paths
+    tls:
+      - secretName: backend-api-cert  # Use the existing TLS secret
+        hosts:
+          - "dns.com"
+
+# Enable monitoring and specify the namespace during Helm installation
+prometheusOperator:
+  namespaceOverride: ""  # Leave empty to respect Helm namespace flag
+
+# Enable scraping of services for Prometheus
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+# Set the RBAC permissions for Prometheus and Grafana
+rbac:
+  create: true  # Create necessary RBAC resources
+
+# Service accounts
+serviceAccounts:
+  prometheus:
+    create: true
+  grafana:
+    create: true
+  alertmanager:
+    create: true
+
+# Additional Prometheus configurations
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelector: {}  # Use the default selector
+    serviceMonitorSelectorNilUsesHelmValues: false
+
+# Set the resources for Prometheus and Grafana (Reduced by half)
+resources:
+  requests:
+    memory: "256Mi"  # Reduced memory request to half
+    cpu: "125m"  # Reduced CPU request to half
+  limits:
+    memory: "512Gi"  # Reduced memory limit to half
+    cpu: "250m"  # Reduced CPU limit to half
+
+
